@@ -37,7 +37,7 @@ public class Robot extends IterativeRobot {
 	boolean shooting = false, resetGyro = false, setStartTime = false, waitStartTime = false, setStartTimeFlywheel = false, 
 			gotStartingENCClicks = false, setStartTimeShoot = false, resetGyroTurn = false;
 	RobotStatus robot = new RobotStatus(climb, drive, flywheel, tank, collector);
-	Logger logger = new Logger();
+//	Logger logger = new Logger();
 	boolean beenEnabled = false, socket = false;
 
 	/**
@@ -78,27 +78,27 @@ public class Robot extends IterativeRobot {
 		myDrive.setExpiration(1.0);
 		
 		//register to log
-		logger.register(robot);
-		logger.register(alex);
-		logger.register(drive);
-		logger.register(flywheel);
-		logger.register(climb);
-		logger.register(collector);
-		logger.register(tank);
-		logger.register(gear);
-		logger.startSocket(); 
+//		logger.register(robot);
+//		logger.register(alex);
+//		logger.register(drive);
+//		logger.register(flywheel);
+//		logger.register(climb);
+//		logger.register(collector);
+//		logger.register(tank);
+//		logger.register(gear);
+//		logger.startSocket(); 
 		socket = true;
 	}
 
 	public void disabledInit(){
-		if(beenEnabled){
-			try {
-				logger.closeSocket(); socket = false;
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-		}
-		beenEnabled = false;
+//		if(beenEnabled){
+//			try {
+//				logger.closeSocket(); socket = false;
+//			} catch (IOException e) {
+//				e.printStackTrace();
+//			}
+//		}
+//		beenEnabled = false;
 	}
 
 	public void autonomousInit() {
@@ -235,10 +235,10 @@ public class Robot extends IterativeRobot {
 			}
 		}
 		
-		if(!socket){
-			logger.startSocket(); socket = true;
-		}
-		beenEnabled = true;
+//		if(!socket){
+//			logger.startSocket(); socket = true;
+//		}
+//		beenEnabled = true;
 	}
 
 	/**
@@ -248,7 +248,7 @@ public class Robot extends IterativeRobot {
 	@Override
 	public void autonomousPeriodic() {
 		System.out.println("NavX: " + gyro.getYaw());
-		logger.log();
+//		logger.log();
 		robot.setGyroAngle(gyro.getYaw());
 		if(!gyroReset){
 			gyro.reset();
@@ -352,10 +352,10 @@ public class Robot extends IterativeRobot {
 		drive.masterRight.setVoltageRampRate(120);
 		drive.masterLeft.setVoltageRampRate(120);
 		robot.setMode("Tele");
-		if(!socket){
-			logger.startSocket(); socket = true;
-		}
-		beenEnabled = true;
+//		if(!socket){
+//			logger.startSocket(); socket = true;
+//		}
+//		beenEnabled = true;
 	}
 
 	/**
@@ -364,7 +364,7 @@ public class Robot extends IterativeRobot {
 
 	@Override
 	public void teleopPeriodic() {
-		logger.log();
+//		logger.log();
 		// driver.driverControls();
 		operator.operatorControls();
 		// tsar.tsarControls();
@@ -545,13 +545,13 @@ public class Robot extends IterativeRobot {
 		return false;
 	}
 
-    public boolean spline(double speed, RobotGrid spline) {
-    	if (gotStartingENCClicks == false) {
+	public boolean spline(double speed, RobotGrid spline) {
+		if (gotStartingENCClicks == false) {
 			gotStartingENCClicks = true;
 			startingENCClicksLeft = drive.masterLeft.getEncPosition();
 			startingENCClicksRight = -drive.followerRightOne.getEncPosition();
 		}
-		if (spline.getDistance() <= (((drive.masterLeft.getEncPosition() - startingENCClicksLeft)/ AutoConstants.TICKS_PER_INCH + (-drive.followerRightOne.getEncPosition() - startingENCClicksRight)/ AutoConstants.TICKS_PER_INCH))/2) {
+		if (spline.getDistance() <= (((drive.masterLeft.getEncPosition() - startingENCClicksLeft)/ AutoConstants.TICKS_PER_INCH + (-drive.followerRightOne.getEncPosition() - startingENCClicksRight)/ AutoConstants.TICKS_PER_INCH))/2 || ((drive.masterRight.getOutputCurrent() > 30) && ((drive.masterLeft.getEncPosition() - startingENCClicksLeft)/ AutoConstants.TICKS_PER_INCH + (-drive.followerRightOne.getEncPosition() - startingENCClicksRight)/ AutoConstants.TICKS_PER_INCH)/2 > .5*spline.getDistance())) {
 			drive.masterLeft.set(0.00);
 			drive.masterRight.set(0.00);
 			System.out.println("Final NavX Angle: " + gyro.getYaw());
@@ -561,6 +561,8 @@ public class Robot extends IterativeRobot {
 			return true;
 		} else {
 			double angleToDrive;
+			if (spline.getDistance()-(((drive.masterLeft.getEncPosition() - startingENCClicksLeft)/ AutoConstants.TICKS_PER_INCH + (-drive.followerRightOne.getEncPosition() - startingENCClicksRight)/ AutoConstants.TICKS_PER_INCH)/2) <(20*speed))
+				speed *= spline.getDistance()-(((drive.masterLeft.getEncPosition() - startingENCClicksLeft)/ AutoConstants.TICKS_PER_INCH + (-drive.followerRightOne.getEncPosition() - startingENCClicksRight)/ AutoConstants.TICKS_PER_INCH)/2)/(20*speed);
 			if (speed > 0)
 				angleToDrive = (spline.getAngle(Math.abs(((drive.masterLeft.getEncPosition() - startingENCClicksLeft)/ AutoConstants.TICKS_PER_INCH + (-drive.followerRightOne.getEncPosition() - startingENCClicksRight)/ AutoConstants.TICKS_PER_INCH))/2));
 			else
